@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.0-experimental
 
 #define base image; replace with your image location once hardened
-FROM opensuse/leap:latest
+FROM treefishdocker/udacity-microservices-security:hardened-v1.1
 
 #define maintainer 
-LABEL maintainer="nick.reva@snap.com"
+LABEL maintainer="me@yahoo.com"
 
 #define version
 LABEL version="V1"
