@@ -38,24 +38,30 @@ git clone https://github.com/zhangtreefish/nd064-c3-microservices-security-exerc
 finally at starter/exercise/:
 git clone https://github.com/aquasecurity/docker-bench.git
 
-7. at vagrant@localhost:
+7. CIS 5.10: at vagrant@localhost:
 
 cd /home/vagrant/nd064-c3-microservices-security-exercises/lesson-3-docker-attack-surface-analysis-and-hardening/exercises/starter
 docker build . -t opensuse/leap:latest -m 256mb --no-cache=true //error: ...[|] Failed to cache repo (137), see https://knowledge.udacity.com/questions/751834
 docker build . -t opensuse/leap:latest --no-cache=true //success
-cd /home/vagrant/go_projects/src/docker-bench
+docker build . -t treefishdocker/udacity-microservices-security:hardened-v1.1 -m 512mb --no-cache=true
+docker build . -t opensuse/leap:latest -m 512mb --no-cache=true //success
+docker run --interactive --tty --memory 512mb opensuse/leap /bin/bash
+docker inspect --format='{{.Config.Memory}}' 8188db82c626 //no output
+docker inspect 8188db82c626 | grep -A 3 "Memory" //            "Memory": 536870912, 536870912	Bytes == 524288 Kilobytes == 512 Megabytes
+vagrant@localhost:~/nd064-c3-microservices-security-exercises/lesson-3-docker-attack-surface-analysis-and-hardening/exercises/docker-bench> ./docker-bench --include-test-output >docker-bench5_10_1.txt 
+vagrant@localhost:~/nd064-c3-microservices-security-exercises/lesson-3-docker-attack-surface-analysis-and-hardening/exercises/docker-bench> cat docker-bench5_10_1.txt | grep FAIL > dockerb_5_10_fail //38
+8. CIS 5.14
+docker run -u tf --detach --restart=on-failure:5 opensuse/leap
 
-build:
-docker build -t opensuse/hardened-v1.0 . --no-cache=true
-8. at /home/vagrant/go_projects/src/docker-bench folder inside suse vm:
+cd /home/vagrant/nd064-c3-microservices-security-exercises/lesson-3-docker-attack-surface-analysis-and-hardening/exercises/docker-bench
 go build -o docker-bench 
 ./docker-bench --help 
 
-./docker-bench --include-test-output >docker-bench1.txt 
+./docker-bench --include-test-output >docker-bench5_10_1.txt 
 
 ./docker-bench
 
-cat docker-bench1.txt | grep FAIL 
+cat docker-bench5_10_1.txt | grep FAIL 
 //39 checks fail
 
 ./docker-bench --version 18.09
@@ -63,15 +69,16 @@ cat docker-bench1.txt | grep FAIL
 cat /etc/audit/audit.rules
 
 9. docker ps --quiet --all | xargs docker inspect --format '{{ .Id }}: Privileged={{ .HostConfig.Privileged }}'
-docker build . -t opensuse/leap:latest -m 256mb --no-cache=true
-docker build . -t mystuff:latest -m 256mb --no-cache=true
 
-docker build . -t opensuse/leap:v1.0.0 -m 256mb
+docker build . -t opensuse/leap:hardened-v1.2 -m 512mb --no-cache=true 
 
-docker tag opensuse/leap:latest treefishdocker/udacity-microservices-security:hardened-v1.0
+docker run --detach --memory 512mb --restart=on-failure:5  opensuse/leap:hardened-v1.2  
+
+docker tag opensuse/leap:hardened-v1.2 treefishdocker/udacity-microservices-security:hardened-v1.2
 
 from starter/: do docker push: //408; refresh browser and retry: 
-docker push treefishdocker/udacitysecurity:hardened-v1.0 //Successfully signed docker.io/treefishdocker/udacitysecurity:hardened-v1.0 but no tag at dockerhub : wrong 
+docker push treefishdocker/udacity-microservices-security:hardened-v1.2 
+//with v1.0: Successfully signed docker.io/treefishdocker/udacitysecurity:hardened-v1.0 but no tag at dockerhub : wrong 
 
 docker images --digests | grep treefishdocker/udacitysecurity:hardened-v1.0 
 
@@ -87,7 +94,6 @@ docker tag mystuff:latest treefishdocker/udacity-microservices-security:latest
 vagrant@localhost:~/nd064-c3-microservices-security-exercises/lesson-3-docker-attack-surface-analysis-and-hardening/exercises/starter> docker run --interactive --tty --memory 256mb opensuse/leap /bin/bash // with -u not work
 634c53ae1eb6:/ # 
 
-docker inspect --format='{{.Config.Memory}}' 08c832dd1163s
 4.5 
 export DOCKER_CONTENT_TRUST=1
 5.10
@@ -103,7 +109,9 @@ docker inspect <> | grep -A 3 RestartPolicy
                   "Name": "",
                   "MaximumRetryCount": 0
                },
-docker run --detach --restart=on-failure:5 opensuse/leap
+docker run --detach --restart=on-failure:5 opensuse/leap //but docker-bench metrics stays the same : https://github.com/aquasecurity/docker-bench/issues/101
+
+
 //which deletes all of the (stopped) containers. (And also its sibling,
 docker ps -a -q | xargs docker rm -v
 //which deletes images with no label and no running container.)
@@ -181,3 +189,5 @@ with the above change: on vagrant up: ==> default: Rsyncing folder: /Users/mommy
 still: vagrant@localhost:~> ls 
 only see bin
 
+### References
+https://en.opensuse.org/Package_repositories

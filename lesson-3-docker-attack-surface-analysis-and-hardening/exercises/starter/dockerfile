@@ -1,17 +1,17 @@
 # syntax=docker/dockerfile:1.0-experimental
 
 #define base image; replace with your image location once hardened
-FROM treefishdocker/udacity-microservices-security:hardened-v1.1
+FROM treefishdocker/udacity-microservices-security:hardened-v1.2
 
 #define maintainer 
-LABEL maintainer="me@yahoo.com"
+LABEL maintainer="me@snap.com"
 
 #define version
 LABEL version="V1"
 
 # create a directory to work in
-RUN mkdir udacity \
-    && cd udacity
+RUN mkdir udacity_tfa \
+    && cd udacity_tfa
 
 #install zypper 
 RUN zypper refs && zypper refresh
